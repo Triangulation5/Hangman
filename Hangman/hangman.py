@@ -1,0 +1,469 @@
+from ascii_art import HANGMAN_PICS, CELEBRATION_ARTS
+from word_list import get_random_word, get_word_from_user
+import sys
+import os
+from colorama import Style, Fore
+import json
+import getpass
+
+BANNER = f"""
+{Fore.MAGENTA}{Style.BRIGHT}
+╔═════════════════════════════════════════════════════╗
+║                  H A N G M A N                      ║
+╠═════════════════════════════════════════════════════╣
+║    A command line hangman game written in Python    ║
+║  Guess the secret word letter by letter before the  ║
+║                hangman is fully drawn.              ║
+║                                                     ║ 
+╚═════════════════════════════════════════════════════╝
+{Style.RESET_ALL}
+"""
+
+MICROTRANSACTIONS_BANNER = """
+╔══════════════════════════════════════╗
+║   M I C R O T R A N S A C T I O N S  ║
+╚══════════════════════════════════════╝
+"""
+
+SLOT_BANNER = """
+╔══════════════════════════════════════╗
+║       S L O T   M A C H I N E        ║
+╚══════════════════════════════════════╝
+"""
+INVENTORY_BANNER = """
+╔══════════════════════════════════════╗
+║          I N V E N T O R Y           ║
+╚══════════════════════════════════════╝
+"""
+
+SHOP_ITEMS = [
+    {"name": "Shield", "desc": "Protects you from one wrong guess.", "cost": 30},
+    {"name": "Hint", "desc": "Buy an extra hint.", "cost": 20},
+    {"name": "Obvious Hint", "desc": "A very obvious hint.", "cost": 40},
+    {"name": "Super Juice", "desc": "Removes five letters that cannot be in the word.", "cost": 50},
+    {"name": "Peace Treaty", "desc": "Improves foreign relations.", "cost": 25},
+    {"name": "Rizz Juice", "desc": "Increases Mr. Hangman's rizz and cures depression.", "cost": 25}
+]
+
+PROFILE_DIR = os.path.join(os.path.dirname(__file__), 'Profiles')
+PROFILE_EXT = '.json'
+
+def list_profiles():
+    if not os.path.exists(PROFILE_DIR):
+        os.makedirs(PROFILE_DIR)
+    return [f[:-len(PROFILE_EXT)] for f in os.listdir(PROFILE_DIR) if f.endswith(PROFILE_EXT)]
+
+def profile_path(name):
+    return os.path.join(PROFILE_DIR, name + PROFILE_EXT)
+
+def save_profile(profile):
+    with open(profile_path(profile['name']), 'w') as f:
+        json.dump(profile, f)
+
+def load_profile(name):
+    with open(profile_path(name), 'r') as f:
+        return json.load(f)
+
+def create_profile():
+    while True:
+        name = input('Enter a new profile name: ').strip()
+        if not name or any(c in name for c in '/\\:*?"<>|'):
+            print('Invalid name. Try again.')
+            continue
+        if name in list_profiles():
+            print('Profile already exists.')
+            continue
+        password = getpass.getpass('Set a password: ')
+        confirm = getpass.getpass('Confirm password: ')
+        if password != confirm:
+            print('Passwords do not match.')
+            continue
+        profile = {'name': name, 'password': password, 'balance': 0, 'inventory': {}}
+        save_profile(profile)
+        print(f'Profile "{name}" created!')
+        return profile
+
+def authenticate_profile():
+    profiles = list_profiles()
+    if not profiles:
+        print('No profiles found. Please create one.')
+        return create_profile()
+    while True:
+        print('Available profiles:')
+        for idx, p in enumerate(profiles, 1):
+            print(f'{idx}. {p}')
+        choice = input('Select a profile by number or name: ').strip()
+        if choice.isdigit() and 1 <= int(choice) <= len(profiles):
+            name = profiles[int(choice)-1]
+        elif choice in profiles:
+            name = choice
+        else:
+            print('Invalid selection.')
+            continue
+        password = getpass.getpass('Enter password: ')
+        profile = load_profile(name)
+        if password == profile['password']:
+            print(f'Welcome, {name}!')
+            return profile
+        else:
+            print('Incorrect password.')
+
+def profile_menu(current_profile):
+    while True:
+        print(f"\nPROFILE MENU (Current: {current_profile['name']})")
+        print("1. Change profile")
+        print("2. Create new profile")
+        print("3. Exit profile menu")
+        choice = input("Choose an option: ").strip().lower()
+        if choice in ('1', 'change'):
+            return authenticate_profile()
+        elif choice in ('2', 'create'):
+            return create_profile()
+        elif choice in ('3', 'exit', 'q'):
+            return current_profile
+        else:
+            print("Invalid option.")
+
+def display_board(hangman_pics, missed_letters, correct_letters, secret_word):
+    print(hangman_pics[len(missed_letters)])
+    print()
+    print('Missed letters:', ' '.join(sorted(missed_letters)))
+    blanks = [letter if letter in correct_letters else '_' for letter in secret_word]
+    print(' '.join(blanks))
+
+def get_guess(already_guessed, excluded_letters=None, allow_hint=False, allow_inventory=False, inventory=None):
+    if excluded_letters is None:
+        excluded_letters = set()
+    while True:
+        prompt = "Guess a letter"
+        if allow_hint:
+            prompt += " or type 'hint'"
+        if allow_inventory:
+            prompt += ", or type 'inventory' to use a powerup"
+        prompt += ": "
+        guess = input(prompt).lower().strip()
+        if allow_inventory and guess == 'inventory' and inventory is not None:
+            show_inventory(inventory)
+            continue
+        if allow_hint and guess == 'hint':
+            return 'hint'
+        if guess in excluded_letters:
+            print(f"The letter '{guess}' is excluded and cannot be in the word. Try another letter.")
+            continue
+        if len(guess) != 1 or not guess.isalpha():
+            print('Please enter a single letter.')
+        elif guess in already_guessed:
+            print('You have already guessed that letter. Choose again.')
+        else:
+            return guess
+
+def play_again():
+    return input('Do you want to play again? (yes or no): ').lower().startswith('y')
+
+def play_slot_machine(balance):
+    import importlib.util
+    import subprocess
+    import sys
+    import os
+    slot_path = os.path.join(os.path.dirname(__file__), 'slot.py')
+    # Call slot.py as a subprocess and pass the balance as an argument (interactive)
+    result = subprocess.run([sys.executable, slot_path, str(balance)], text=True)
+    # Parse the new balance from the output (last line should be the new balance)
+    try:
+        for line in result.stdout.splitlines()[::-1]:
+            if line.strip().isdigit():
+                return int(line.strip())
+    except Exception:
+        pass
+    return balance
+
+def shop(balance, inventory):
+    while True:
+        print(MICROTRANSACTIONS_BANNER)
+        print(f"Your jeffcoins: {balance}")
+        for idx, item in enumerate(SHOP_ITEMS, 1):
+            print(f"{idx}. {item['name']} ({item['cost']} jeffcoins) - {item['desc']}")
+        print(f"{len(SHOP_ITEMS)+1}. Exit microtransactions")
+        choice = input("Choose an item to buy or exit: ").strip().lower()
+        if choice in (str(len(SHOP_ITEMS)+1), 'exit', 'q'):
+            break
+        if choice.isdigit():
+            choice = int(choice)
+            if 1 <= choice <= len(SHOP_ITEMS):
+                item = SHOP_ITEMS[choice-1]
+                if balance >= item['cost']:
+                    balance -= item['cost']
+                    inventory[item['name']] = inventory.get(item['name'], 0) + 1
+                    print(f"You bought a {item['name']}! Remaining jeffcoins: {balance}")
+                else:
+                    print("Not enough jeffcoins!")
+            else:
+                print("Invalid option.")
+        else:
+            print("Invalid input.")
+    return balance, inventory
+
+def show_inventory(inventory):
+    print(INVENTORY_BANNER)
+    if not inventory:
+        print("You have no items.")
+        return None
+    for idx, (item, count) in enumerate(inventory.items(), 1):
+        desc = next((i['desc'] for i in SHOP_ITEMS if i['name'] == item), "")
+        print(f"{idx}. {item} x{count} - {desc}")
+    print(f"{len(inventory)+1}. Exit inventory")
+    while True:
+        choice = input("Select an item to use or exit: ").strip().lower()
+        if not choice:
+            print("Please enter a valid option.")
+            continue
+        if choice in (str(len(inventory)+1), 'exit', 'q'):
+            return None
+        if choice.isdigit():
+            choice = int(choice)
+            if 1 <= choice <= len(inventory):
+                item = list(inventory.keys())[choice-1]
+                # Check if item can be used (effectiveness checked in play_hangman)
+                if inventory[item] > 0:
+                    print(f"You used a {item}!")
+                    inventory[item] -= 1
+                    if inventory[item] == 0:
+                        del inventory[item]
+                    return item  # Return the used item for effect
+                else:
+                    print(f"No {item}s left!")
+            else:
+                print("Invalid option.")
+        else:
+            print("Invalid input.")
+
+def main_menu():
+    profile = authenticate_profile()
+    balance = profile.get('balance', 0)
+    inventory = profile.get('inventory', {})
+    while True:
+        print(BANNER)
+        print(f"Profile: {profile['name']}")
+        print(f"Your jeffcoins: {balance}")
+        print("1. Play Hangman")
+        print("2. Play Slot Machine")
+        print("3. Microtransactions")
+        print("4. Inventory")
+        print("5. Profile Menu")
+        print("6. Exit")
+        choice = input("Choose an option: ").strip().lower()
+        if choice in ('6', 'exit', 'q'):
+            profile['balance'] = balance
+            profile['inventory'] = inventory
+            save_profile(profile)
+            print("Goodbye!")
+            sys.exit()
+        elif choice == '1':
+            balance, inventory = play_hangman(balance, inventory)
+        elif choice == '2':
+            print(SLOT_BANNER)
+            balance = play_slot_machine(balance)
+        elif choice == '3':
+            balance, inventory = shop(balance, inventory)
+        elif choice == '4':
+            show_inventory(inventory)
+        elif choice == '5':
+            profile['balance'] = balance
+            profile['inventory'] = inventory
+            save_profile(profile)
+            profile = profile_menu(profile)
+            balance = profile.get('balance', 0)
+            inventory = profile.get('inventory', {})
+        else:
+            print("Invalid option.")
+
+def play_hangman(balance=0, inventory=None):
+    import random
+    if inventory is None:
+        inventory = {}
+    difficulties = {
+        'easy':    {'hints': 4, 'excluded': 5},
+        'medium':  {'hints': 2, 'excluded': 3},
+        'hard':    {'hints': 1, 'excluded': 2},
+        'super hard': {'hints': 0, 'excluded': 1},
+        'mental': {'hints': 0, 'excluded': 0}  # Mental mode: no hints, no excluded letters
+    }
+    while True:
+        print("Select difficulty: easy, medium, hard, super hard, mental")
+        difficulty = input("Enter difficulty: ")
+
+        # Auto-detect difficulty based on word length (for random words)
+        if difficulty == 'auto':
+            if isinstance(secret_word, str):  # Check if secret_word is a string
+                word_length = len(secret_word)
+                if word_length <= 4:
+                    difficulty = 'easy'
+                elif word_length <= 6:
+                    difficulty = 'medium'
+                elif word_length <= 8:
+                    difficulty = 'hard'
+                else:
+                    difficulty = 'super hard'
+            else:
+                print("Error: secret_word is not a string.")
+                difficulty = 'medium'  # Default to medium if there's an error
+        else:
+            difficulty = difficulty.strip().lower()
+
+        if difficulty not in difficulties:
+            print("Invalid difficulty. Please choose from easy, medium, hard, super hard, mental.")
+            continue
+        settings = difficulties[difficulty]
+        mode = input("Enter '1' to input your own word, '2' for a random word: ")
+        secret_word = get_word_from_user() if mode == '1' else get_random_word()
+        missed_letters = set()
+        correct_letters = set()
+        game_is_done = False
+        hints_left = settings['hints']
+        hints_used = 0
+        shield_active = False
+        # Excluded Letters
+        alphabet = set('abcdefghijklmnopqrstuvwxyz')
+        num_excluded = min(settings['excluded'], len(alphabet - set(secret_word)))
+        excluded_letters = set(random.sample(list(alphabet - set(secret_word)), k=num_excluded)) if num_excluded > 0 else set()
+        print(f"Difficulty: {difficulty.title()}")
+        if difficulty == 'mental':
+            print("You have chosen MENTAL mode. Good luck!")
+        print(f"Excluded Letters: {' '.join(sorted(excluded_letters))}")
+        while True:
+            # Inventory use prompt
+            if inventory:
+                use_item = input("Do you want to use an inventory item? (y/n): ").strip().lower()
+                if use_item == 'y':
+                    used_item = show_inventory(inventory)
+                    if used_item == "Hint":
+                        hints_left += 1
+                        print("You gained an extra hint!")
+                    elif used_item == "Obvious Hint":
+                        unrevealed = list(set(secret_word) - correct_letters)
+                        if unrevealed:
+                            hint_letter = random.choice(unrevealed)
+                            print(f"Obvious Hint: The word contains the letter '{hint_letter}' (very obvious!)")
+                            correct_letters.add(hint_letter)
+                        else:
+                            print("No more letters to reveal!")
+                    elif used_item == "Shield":
+                        if not shield_active:
+                            shield_active = True
+                            print("Shield activated! Your next wrong guess will not count.")
+                        else:
+                            print("Shield is already active!")
+                    elif used_item == "Super Juice":
+                        possible = list(alphabet - set(secret_word) - excluded_letters)
+                        if possible:
+                            remove_count = min(5, len(possible))
+                            removed = random.sample(possible, k=remove_count) if remove_count > 0 else []
+                            excluded_letters.update(removed)
+                            print(f"Super Juice: The following letters are NOT in the word: {' '.join(sorted(removed))}")
+                        else:
+                            print("No more letters can be excluded!")
+                    elif used_item == "Peace Treaty":
+                        print("You feel at peace. (No effect this round.)")
+                    elif used_item == "Rizz Juice":
+                        unrevealed = list(set(secret_word) - correct_letters)
+                        if unrevealed:
+                            hint_letter = random.choice(unrevealed)
+                            print(f"Rizz Juice: Mr. Hangman is inspired! Free hint: '{hint_letter}'")
+                            correct_letters.add(hint_letter)
+                        else:
+                            print("No more letters to reveal!")
+            display_board(HANGMAN_PICS, missed_letters, correct_letters, secret_word)
+            print(f'Difficulty: {difficulty.title()}')
+            print(f'Hints left: {hints_left}')
+            print(f"Excluded Letters: {' '.join(sorted(excluded_letters))}")
+            guess = get_guess(missed_letters | correct_letters, excluded_letters, allow_hint=(hints_left > 0), allow_inventory=True, inventory=inventory)
+            if guess == 'hint':
+                if hints_left > 0:
+                    unrevealed = list(set(secret_word) - correct_letters)
+                    if unrevealed:
+                        hint_letter = random.choice(unrevealed)
+                        print(f'Hint: The word contains the letter "{hint_letter}".')
+                        correct_letters.add(hint_letter)
+                        hints_left -= 1
+                        hints_used += 1
+                        if set(secret_word).issubset(correct_letters):
+                            print(f'Yes! The secret word is "{secret_word}"! You win!')
+                            print(random.choice(CELEBRATION_ARTS))
+                            print(f'Hints used: {hints_used}')
+                            reward = max(5, 5 * (len(secret_word) // 2))
+                            print(f'You earned {reward} jeffcoins!')
+                            balance += reward
+                            game_is_done = True
+                    else:
+                        print('No more letters to reveal!')
+                else:
+                    print('No hints left!')
+                continue
+            if not guess or len(guess) != 1 or not guess.isalpha():
+                print('Please enter a single letter (a-z).')
+                continue
+            if guess in excluded_letters:
+                print(f"The letter '{guess}' is excluded and cannot be in the word. Try another letter.")
+                continue
+            if guess in missed_letters or guess in correct_letters:
+                print('You have already guessed that letter. Choose again.')
+                continue
+            if guess in secret_word:
+                correct_letters.add(guess)
+                if set(secret_word).issubset(correct_letters):
+                    import random
+                    print(f'Yes! The secret word is "{secret_word}"! You win!')
+                    print(random.choice(CELEBRATION_ARTS))
+                    print(f'Hints used: {hints_used}')
+                    reward = max(5, 5 * (len(secret_word) // 2))
+                    print(f'You earned {reward} jeffcoins!')
+                    balance += reward
+                    game_is_done = True
+            else:
+                if shield_active:
+                    print("Your shield protected you from a wrong guess!")
+                    shield_active = False
+                else:
+                    missed_letters.add(guess)
+                if len(missed_letters) == len(HANGMAN_PICS) - 1:
+                    display_board(HANGMAN_PICS, missed_letters, correct_letters, secret_word)
+                    print(f'You have run out of guesses!\nAfter {len(missed_letters)} missed guesses and {len(correct_letters)} correct guesses, the word was "{secret_word}".')
+                    print(f'Hints used: {hints_used}')
+                    game_is_done = True
+            if game_is_done:
+                if play_again():
+                    break
+                else:
+                    return balance, inventory  # Return to main menu with updated balance/inventory
+
+def print_help():
+    print("""
+HangmanPY - Command Line Hangman + Slot Machine + Shop
+
+Usage:
+  python hangman.py           # Start the game
+  python hangman.py --help    # Show this help menu
+  python hangman.py -h        # Show this help menu
+
+Features:
+- Play Hangman with multiple difficulties, hints, and excluded letters.
+- Earn jeffcoins for winning Hangman or the slot machine.
+- Spend jeffcoins in the shop to buy powerups (Shield, Hint, Obvious Hint, Super Juice, Peace Treaty, Rizz Juice).
+- Use your inventory at any time during Hangman by typing 'inventory'.
+- Play a slot machine mini-game to win or lose jeffcoins.
+- Enjoy random ASCII art celebrations every time you win Hangman.
+- All menus accept 'exit' or 'q' to leave at any time.
+
+Controls:
+- In Hangman, guess a letter, type 'hint' (if available), or 'inventory' to use a powerup.
+- In any menu, type 'exit' or 'q' to leave.
+
+Enjoy the game!
+""")
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] in ('--help', '-h'):
+        print_help()
+        sys.exit(0)
+    main_menu()
