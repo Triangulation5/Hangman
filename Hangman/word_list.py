@@ -1,17 +1,116 @@
 import random
 
 WORD_LIST = [
-    'python', 'hangman', 'challenge', 'programming', 'wizard', 'keyboard', 'function', 'variable', 'define'
+    "python",
+    "hangman",
+    "challenge",
+    "programming",
+    "wizard",
+    "keyboard",
+    "function",
+    "variable",
+    "define",
+    "answer",
+    "compare",
+    "radioactive",
+    "hierarchy",
+    "imagine",
+    "extremity",
+    "scenario",
+    "manage",
+    "extensive",
+    "experience",
+    "constant",
+    "variable",
+    "complete",
+    "thought",
+    "delirious",
+    "tourniquet",
+    "operation",
+    "immediate",
+    "motivation",
+    "regular",
+    "problem",
+    "situation",
+    "altitude",
+    "considerable",
+    "conscious",
+    "unconscious",
+    "tragedy",
+    "general",
+    "decompression",
+    "fortunate",
+    "summon",
+    "strength",
+    "cargo",
+    "explosive",
+    "passenger",
+    "patient",
+    "exygen",
+    "device",
+    "ordeal",
+    "attendant",
+    "consequence",
+    "surround",
+    "tradition",
+    "nevertheless",
+    "description",
+    "suspected",
+    "perpetrator",
+    "similarities",
+    "differences",
+    "resemble",
+    "participant",
+    "identify",
+    "witness",
+    "software",
+    "deparment",
+    "convention",
+    "virtual",
+    "include",
+    "database",
+    "check",
+    "force",
+    "against",
+    "convince",
+    "consider",
+    "predecessor",
+    "remove",
+    "emperor",
+    "crowned",
+    "revenge",
+    "vengance",
+    "transcript",
+    "speaker",
+    "vestments",
+    "retrieve",
+    "deposed",
+    "rebellion",
+    "stripped",
+    "pontificate",
+    "confirm",
+    "successor",
+    "deny",
+    "uncontrollable",
+    "manipulate",
+    "subdue",
+    "experiment",
+    "torture",
+    "apparent",
+    "insatiable"
 ]
+
 
 def get_random_word():
     return random.choice(WORD_LIST)
 
+
 def get_word_from_user():
     while True:
-        word = input('Enter your secret word for Hangman (letters only): ').lower()
+        word = input("Enter your secret word for Hangman (letters only): ").lower()
         if word.isalpha():
-            print('\n' * 50)  # Clear the screen so the guesser can't see the word
+            print("\n" * 50)
             return word
         else:
-            print('Please enter a word with only letters.')
+            print("Please enter a word with only letters.")
+
