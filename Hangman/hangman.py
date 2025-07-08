@@ -56,7 +56,6 @@ SHOP_ITEMS = [
 PROFILE_DIR = os.path.join(os.path.dirname(__file__), "Profiles")
 PROFILE_EXT = ".json"
 
-
 def list_profiles():
     if not os.path.exists(PROFILE_DIR):
         os.makedirs(PROFILE_DIR)
@@ -66,20 +65,16 @@ def list_profiles():
         if f.endswith(PROFILE_EXT)
     ]
 
-
 def profile_path(name):
     return os.path.join(PROFILE_DIR, name + PROFILE_EXT)
-
 
 def save_profile(profile):
     with open(profile_path(profile["name"]), "w") as f:
         json.dump(profile, f)
 
-
 def load_profile(name):
     with open(profile_path(name), "r") as f:
         return json.load(f)
-
 
 def create_profile():
     while True:
@@ -99,7 +94,6 @@ def create_profile():
         save_profile(profile)
         print(f'Profile "{name}" created!')
         return profile
-
 
 def authenticate_profile():
     profiles = list_profiles()
@@ -126,7 +120,6 @@ def authenticate_profile():
         else:
             print("Wrong password.\n")
 
-
 def profile_menu(current_profile):
     while True:
         print(f"\nPROFILE MENU (Current: {current_profile['name']})")
@@ -143,14 +136,12 @@ def profile_menu(current_profile):
         else:
             print("Invalid.")
 
-
 def display_board(hangman_pics, missed_letters, correct_letters, secret_word):
     print(hangman_pics[len(missed_letters)])
     print()
     print("Missed letters:", " ".join(sorted(missed_letters)))
     blanks = [letter if letter in correct_letters else "_" for letter in secret_word]
     print(" ".join(blanks))
-
 
 def get_guess(
     already_guessed,
@@ -184,10 +175,8 @@ def get_guess(
         else:
             return guess
 
-
 def play_again():
     return input("Play again? (y/n): ").lower().startswith("y")
-
 
 def play_slot_machine(balance):
     import subprocess
@@ -214,7 +203,6 @@ def play_slot_machine(balance):
             return int(line.strip())
     return balance
 
-
 def shop(balance, inventory):
     while True:
         print(MICROTRANSACTIONS_BANNER)
@@ -240,7 +228,6 @@ def shop(balance, inventory):
         else:
             print("Invalid.")
     return balance, inventory
-
 
 def show_inventory(inventory):
     print(INVENTORY_BANNER)
@@ -274,7 +261,6 @@ def show_inventory(inventory):
                 print("Invalid.")
         else:
             print("Invalid.")
-
 
 def main_menu():
     profile = authenticate_profile()
@@ -317,7 +303,6 @@ def main_menu():
             inventory = profile.get("inventory", {})
         else:
             print("Invalid.")
-
 
 def play_hangman(balance=0, inventory=None):
     import random
@@ -508,7 +493,6 @@ def play_hangman(balance=0, inventory=None):
                 else:
                     return balance, inventory
 
-
 def print_help():
     print(
         """
@@ -535,7 +519,6 @@ Controls:
 Enjoy the game!
 """
     )
-
 
 if __name__ == "__main__":
     import sys

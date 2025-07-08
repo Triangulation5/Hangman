@@ -23,7 +23,6 @@ PAYLINES = [
     [(2, 0), (1, 1), (0, 2)],
 ]
 
-
 def get_slot_machine_spin(
     rows: int, cols: int, frequencies: Dict[str, int]
 ) -> List[List[str]]:
@@ -31,7 +30,6 @@ def get_slot_machine_spin(
         symbol for symbol, count in frequencies.items() for _ in range(count)
     ]
     return [random.choices(all_symbols, k=rows) for _ in range(cols)]
-
 
 def print_slot_machine(reels: List[List[str]]) -> None:
     symbol_width = max(len(s) for col in reels for s in col) + 2
@@ -42,7 +40,6 @@ def print_slot_machine(reels: List[List[str]]) -> None:
         print("|" + "|".join(row_symbols) + "|")
         print(border)
     print()
-
 
 def deposit(current_balance: int) -> int:
     while True:
@@ -66,7 +63,6 @@ def deposit(current_balance: int) -> int:
             f"Please enter a number between 1 and {current_balance}, or type 'exit' or 'q' to cancel."
         )
 
-
 def get_bet() -> int:
     while True:
         amount = input("Bet (1-3): ").strip().lower()
@@ -81,14 +77,12 @@ def get_bet() -> int:
                 return amount
         print("Bet must be 1-3, or 'exit'/'q'.")
 
-
 def get_active_paylines(bet: int) -> List[List[Tuple[int, int]]]:
     if bet == 1:
         return [PAYLINES[0]]
     elif bet == 2:
         return PAYLINES[:3]
     return PAYLINES
-
 
 def check_winnings(reels: List[List[str]], bet: int) -> Tuple[int, List[int]]:
     winnings = 0
@@ -103,10 +97,8 @@ def check_winnings(reels: List[List[str]], bet: int) -> Tuple[int, List[int]]:
             winning_lines.append(idx + 1)
     return winnings, winning_lines
 
-
 def pikachu_event() -> bool:
     return random.random() < BONUS_CHANCE
-
 
 def spin(balance: int) -> int:
     bet = get_bet()
@@ -136,7 +128,6 @@ def spin(balance: int) -> int:
 
     return winnings - total_bet
 
-
 def spin_with_bet(balance: int, bet: int) -> int:
     total_bet = bet
     if total_bet > balance:
@@ -158,7 +149,6 @@ def spin_with_bet(balance: int, bet: int) -> int:
         print("No winning paylines this spin.")
     return winnings - total_bet
 
-
 def print_help():
     print("""
 SLOT MACHINE GAME RULES
@@ -179,7 +169,6 @@ Usage:
   python slot.py --help    # Show this help message
   python slot.py -h        # Show this help message
 """)
-
 
 def main(balance=0) -> int:
     if len(sys.argv) > 1 and sys.argv[1] in ("--help", "-h"):
@@ -228,7 +217,6 @@ def main(balance=0) -> int:
             print("Invalid option. Please choose 1, 2, 'exit', or 'q'.")
     print(balance)
     return balance
-
 
 if __name__ == "__main__":
     main()
