@@ -1,6 +1,25 @@
 # HangmanPY
 
-A command-line Hangman game written in Python!  
+<!--toc:start-->
+- [HangmanPY](#hangmanpy)
+  - [Features](#features)
+  - [Profile System](#profile-system)
+  - [Inventory & Powerups](#inventory-powerups)
+  - [Celebrations](#celebrations)
+  - [Help Menu](#help-menu)
+  - [File Structure](#file-structure)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Running the Game](#running-the-game)
+  - [Slot Machine & Microtransactions](#slot-machine-microtransactions)
+  - [Requirements](#requirements)
+    - [How to Play](#how-to-play)
+  - [Customization](#customization)
+  - [Roadmap](#roadmap)
+  - [License](#license)
+<!--toc:end-->
+
+A command-line Hangman game written in Python!
 Guess the secret word letter by letter before the hangman is fully drawn.
 
 Features modular code, ASCII art stages, and the option to input your own secret word.

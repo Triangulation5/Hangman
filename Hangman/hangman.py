@@ -1,10 +1,11 @@
-from ascii_art import HANGMAN_PICS, CELEBRATION_ARTS
-from word_list import get_random_word, get_word_from_user
-import sys
-import os
-from colorama import Style, Fore
-import json
 import getpass
+import json
+import os
+import sys
+
+from ascii_art import CELEBRATION_ARTS, HANGMAN_PICS
+from colorama import Fore, Style
+from word_list import get_random_word, get_word_from_user
 
 BANNER = f"""
 {Fore.MAGENTA}{Style.BRIGHT}
@@ -14,7 +15,7 @@ BANNER = f"""
 ║    A command line hangman game written in Python    ║
 ║  Guess the secret word letter by letter before the  ║
 ║                hangman is fully drawn.              ║
-║                                                     ║ 
+║                                                     ║
 ╚═════════════════════════════════════════════════════╝
 {Style.RESET_ALL}
 """
@@ -56,6 +57,7 @@ SHOP_ITEMS = [
 PROFILE_DIR = os.path.join(os.path.dirname(__file__), "Profiles")
 PROFILE_EXT = ".json"
 
+
 def list_profiles():
     if not os.path.exists(PROFILE_DIR):
         os.makedirs(PROFILE_DIR)
@@ -65,16 +67,20 @@ def list_profiles():
         if f.endswith(PROFILE_EXT)
     ]
 
+
 def profile_path(name):
     return os.path.join(PROFILE_DIR, name + PROFILE_EXT)
+
 
 def save_profile(profile):
     with open(profile_path(profile["name"]), "w") as f:
         json.dump(profile, f)
 
+
 def load_profile(name):
     with open(profile_path(name), "r") as f:
         return json.load(f)
+
 
 def create_profile():
     while True:
@@ -95,6 +101,34 @@ def create_profile():
         print(f'Profile "{name}" created!')
         return profile
 
+
+def delete_profile():
+    profiles = list_profiles()
+    if not profiles:
+        print("No profiles to delete.")
+        return None
+    while True:
+        print("Profiles:")
+        for idx, p in enumerate(profiles, 1):
+            print(f"{idx}. {p}")
+        choice = input("Select profile to delete #: ").strip()
+        if choice.isdigit() and 1 <= int(choice) <= len(profiles):
+            name = profiles[int(choice) - 1]
+        elif choice in profiles:
+            name = choice
+        else:
+            print("Invalid.")
+            continue
+        confirm = input(f'Type "{name}" to confirm deletion: ').strip()
+        if confirm == name:
+            os.remove(profile_path(name))
+            print(f'Profile "{name}" deleted.')
+            return True
+        else:
+            print("Deletion cancelled.")
+            return False
+
+
 def authenticate_profile():
     profiles = list_profiles()
     if not profiles:
@@ -104,9 +138,13 @@ def authenticate_profile():
         print("Profiles:")
         for idx, p in enumerate(profiles, 1):
             print(f"{idx}. {p}")
-        choice = input("Select profile #: ").strip()
+        choice = input(
+            'Select profile, or type "create", "new" to create new one #: '
+        ).strip()
         if choice.isdigit() and 1 <= int(choice) <= len(profiles):
             name = profiles[int(choice) - 1]
+        elif choice in ("create", "new"):
+            return create_profile()
         elif choice in profiles:
             name = choice
         else:
@@ -120,21 +158,27 @@ def authenticate_profile():
         else:
             print("Wrong password.\n")
 
+
 def profile_menu(current_profile):
     while True:
         print(f"\nPROFILE MENU (Current: {current_profile['name']})")
         print("1. Change profile")
         print("2. New profile")
-        print("3. Exit menu")
+        print("3. Delete profile")
+        print("4. Exit menu")
         choice = input("Option: ").strip().lower()
         if choice in ("1", "change"):
             return authenticate_profile()
         elif choice in ("2", "create", "new"):
             return create_profile()
-        elif choice in ("3", "exit", "q"):
+        elif choice in ("3", "delete"):
+            if delete_profile():
+                current_profile = authenticate_profile()
+        elif choice in ("4", "exit", "q"):
             return current_profile
         else:
             print("Invalid.")
+
 
 def display_board(hangman_pics, missed_letters, correct_letters, secret_word):
     print(hangman_pics[len(missed_letters)])
@@ -142,6 +186,7 @@ def display_board(hangman_pics, missed_letters, correct_letters, secret_word):
     print("Missed letters:", " ".join(sorted(missed_letters)))
     blanks = [letter if letter in correct_letters else "_" for letter in secret_word]
     print(" ".join(blanks))
+
 
 def get_guess(
     already_guessed,
@@ -175,13 +220,15 @@ def get_guess(
         else:
             return guess
 
+
 def play_again():
     return input("Play again? (y/n): ").lower().startswith("y")
 
+
 def play_slot_machine(balance):
+    import os
     import subprocess
     import sys
-    import os
 
     slot_path = os.path.join(os.path.dirname(__file__), "slot.py")
     process = subprocess.Popen(
@@ -202,6 +249,7 @@ def play_slot_machine(balance):
         if line.strip().isdigit():
             return int(line.strip())
     return balance
+
 
 def shop(balance, inventory):
     while True:
@@ -228,6 +276,7 @@ def shop(balance, inventory):
         else:
             print("Invalid.")
     return balance, inventory
+
 
 def show_inventory(inventory):
     print(INVENTORY_BANNER)
@@ -261,6 +310,7 @@ def show_inventory(inventory):
                 print("Invalid.")
         else:
             print("Invalid.")
+
 
 def main_menu():
     profile = authenticate_profile()
@@ -303,6 +353,7 @@ def main_menu():
             inventory = profile.get("inventory", {})
         else:
             print("Invalid.")
+
 
 def play_hangman(balance=0, inventory=None):
     import random
@@ -376,7 +427,9 @@ def play_hangman(balance=0, inventory=None):
                         if unrevealed:
                             hint_letter = random.choice(unrevealed)
                             print(
-                                f"Obvious Hint: The word contains the letter '{hint_letter}' (very obvious!)"
+                                f"Obvious Hint: The word contains the letter '{
+                                    hint_letter
+                                }' (very obvious!)"
                             )
                             correct_letters.add(hint_letter)
                         else:
@@ -400,7 +453,9 @@ def play_hangman(balance=0, inventory=None):
                             )
                             excluded_letters.update(removed)
                             print(
-                                f"Super Juice: The following letters are NOT in the word: {' '.join(sorted(removed))}"
+                                f"Super Juice: The following letters are NOT in the word: {
+                                    ' '.join(sorted(removed))
+                                }"
                             )
                         else:
                             print("No more letters can be excluded!")
@@ -411,7 +466,9 @@ def play_hangman(balance=0, inventory=None):
                         if unrevealed:
                             hint_letter = random.choice(unrevealed)
                             print(
-                                f"Rizz Juice: Mr. Hangman is inspired! Free hint: '{hint_letter}'"
+                                f"Rizz Juice: Mr. Hangman is inspired! Free hint: '{
+                                    hint_letter
+                                }'"
                             )
                             correct_letters.add(hint_letter)
                         else:
@@ -454,7 +511,9 @@ def play_hangman(balance=0, inventory=None):
                 continue
             if guess in excluded_letters:
                 print(
-                    f"The letter '{guess}' is excluded and cannot be in the word. Try another letter."
+                    f"The letter '{
+                        guess
+                    }' is excluded and cannot be in the word. Try another letter."
                 )
                 continue
             if guess in missed_letters or guess in correct_letters:
@@ -483,7 +542,11 @@ def play_hangman(balance=0, inventory=None):
                         HANGMAN_PICS, missed_letters, correct_letters, secret_word
                     )
                     print(
-                        f'You have run out of guesses!\nAfter {len(missed_letters)} missed guesses and {len(correct_letters)} correct guesses, the word was "{secret_word}".'
+                        f'You have run out of guesses!\nAfter {
+                            len(missed_letters)
+                        } missed guesses and {
+                            len(correct_letters)
+                        } correct guesses, the word was "{secret_word}".'
                     )
                     print(f"Hints used: {hints_used}")
                     game_is_done = True
@@ -492,6 +555,7 @@ def play_hangman(balance=0, inventory=None):
                     break
                 else:
                     return balance, inventory
+
 
 def print_help():
     print(
@@ -519,6 +583,7 @@ Controls:
 Enjoy the game!
 """
     )
+
 
 if __name__ == "__main__":
     import sys
