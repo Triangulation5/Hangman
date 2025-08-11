@@ -21,3 +21,17 @@ venv.bak/
 
 # Test and log files
 *.log
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go modules
+/vendor/
+/bin/
+/pkg/
