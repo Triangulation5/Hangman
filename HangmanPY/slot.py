@@ -159,6 +159,11 @@ def spin_with_bet(balance: int, bet: int) -> int:
     return winnings - total_bet
 
 
+def easter_egg():
+    # TODO: Implement a few easter eggs for the players to figure out.
+    print("You found an Easter egg.")
+
+
 def print_help():
     print("""
 SLOT MACHINE GAME RULES

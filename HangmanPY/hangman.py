@@ -10,7 +10,7 @@ from word_list import get_random_word, get_word_from_user
 BANNER = f"""
 {Fore.MAGENTA}{Style.BRIGHT}
 ╔═════════════════════════════════════════════════════╗
-║                  H A N G M A N                      ║
+║                    H A N G M A N                    ║
 ╠═════════════════════════════════════════════════════╣
 ║    A command line hangman game written in Python    ║
 ║  Guess the secret word letter by letter before the  ║
@@ -20,21 +20,27 @@ BANNER = f"""
 {Style.RESET_ALL}
 """
 
-MICROTRANSACTIONS_BANNER = """
+MICROTRANSACTIONS_BANNER = f"""
+{Fore.RED}{Style.BRIGHT}
 ╔══════════════════════════════════════╗
 ║   M I C R O T R A N S A C T I O N S  ║
 ╚══════════════════════════════════════╝
+{Style.RESET_ALL}
 """
 
-SLOT_BANNER = """
+SLOT_BANNER = f"""
+{Fore.CYAN}{Style.BRIGHT}
 ╔══════════════════════════════════════╗
 ║       S L O T   M A C H I N E        ║
 ╚══════════════════════════════════════╝
+{Style.RESET_ALL}
 """
-INVENTORY_BANNER = """
+INVENTORY_BANNER = f"""
+{Fore.GREEN}{Style.BRIGHT}
 ╔══════════════════════════════════════╗
 ║          I N V E N T O R Y           ║
 ╚══════════════════════════════════════╝
+{Style.RESET_ALL}
 """
 
 SHOP_ITEMS = [

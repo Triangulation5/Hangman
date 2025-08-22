@@ -56,5 +56,3 @@ func MainMenu() {
 		}
 	}
 }
-
-// ...existing code for profile menu, shop, inventory, and game logic will follow...
