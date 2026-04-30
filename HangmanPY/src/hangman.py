@@ -3,9 +3,12 @@ import json
 import os
 import sys
 
+from colorama import Fore, Style, init
+
 from .ascii_art import CELEBRATION_ARTS, HANGMAN_PICS
-from colorama import Fore, Style
 from .word_list import get_random_word, get_word_from_user
+
+init()
 
 BANNER = f"""
 {Fore.MAGENTA}{Style.BRIGHT}
@@ -124,19 +127,19 @@ def create_profile():
     while True:
         name = input("New profile name: ").strip()
         if not name or any(c in name for c in '/\\:*?"<>|'):
-            print("Invalid name.")
+            print(Fore.RED + "Invalid name." + Style.RESET_ALL)
             continue
         if name in list_profiles():
-            print("Profile exists.")
+            print(Fore.RED + "Profile already exists." + Style.RESET_ALL)
             continue
         password = getpass.getpass("Password: ")
         confirm = getpass.getpass("Confirm: ")
         if password != confirm:
-            print("Passwords do not match.")
+            print(Fore.RED + "Passwords do not match." + Style.RESET_ALL)
             continue
         profile = {"name": name, "password": password, "balance": 0, "inventory": {}}
         save_profile(profile)
-        print(f'Profile "{name}" created!')
+        print(f"\n{Fore.GREEN}Profile \"{name}\" created!{Style.RESET_ALL}")
         return profile
 
 
@@ -161,15 +164,17 @@ def delete_profile():
         elif choice in profiles:
             name = choice
         else:
-            print("Invalid.")
+            print(Fore.RED + "Invalid." + Style.RESET_ALL)
             continue
-        confirm = input(f'Type "{name}" to confirm deletion: ').strip()
+        confirm = input(
+                f'{Fore.RED}Type "{name}" to confirm deletion: {Style.RESET_ALL}'
+                ).strip()
         if confirm == name:
             os.remove(profile_path(name))
-            print(f'Profile "{name}" deleted.')
+            print(f'{Fore.GREEN}Profile \"{name}\" deleted.{Style.RESET_ALL}')
             return True
         else:
-            print("Deletion cancelled.")
+            print(Fore.YELLOW + "Deletion cancelled." + Style.RESET_ALL)
             return False
 
 
@@ -178,35 +183,39 @@ def authenticate_profile():
     authenticate_profile
     ---
 
-    Checks profile list for profiles. If there are none prompts leads user to create_profile().
+    Checks profile list for profiles.
+    If there are none prompts leads user to create_profile().
     """
     profiles = list_profiles()
     if not profiles:
-        print("No profiles. Create one.")
+        print(f"{Fore.YELLOW}No profiles. Create one.{Style.RESET_ALL}")
         return create_profile()
     while True:
-        print("Profiles:")
+        print(f"{Fore.CYAN}Profiles:{Style.RESET_ALL}")
         for idx, p in enumerate(profiles, 1):
             print(f"{idx}. {p}")
         choice = input(
-            'Select profile, or type "create", "new" to create new one #: '
+            "Select profile, delete profile using \"delete\", "
+            "or type \"create\", \"new\" to create new one #: "
         ).strip()
         if choice.isdigit() and 1 <= int(choice) <= len(profiles):
             name = profiles[int(choice) - 1]
         elif choice in ("create", "new"):
             return create_profile()
+        elif choice in ("delete"):
+            return delete_profile()
         elif choice in profiles:
             name = choice
         else:
-            print("Invalid.")
+            print(f"{Fore.RED}Invalid.{Style.RESET_ALL}")
             continue
         password = getpass.getpass("Password: ")
         profile = load_profile(name)
         if password == profile["password"]:
-            print(f"Welcome, {name}!")
+            print(f"{Fore.GREEN}Welcome, {name}!{Style.RESET_ALL}")
             return profile
         else:
-            print("Wrong password.\n")
+            print(f"{Fore.RED}Wrong password.{Style.RESET_ALL}\n")
 
 
 def profile_menu(current_profile):
