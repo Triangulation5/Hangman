@@ -1,4 +1,5 @@
 import random
+import requests
 
 WORD_LIST = [
     "python",
@@ -153,17 +154,28 @@ WORD_LIST = [
     "start",
     "afraid",
     "mocking",
-    "beleive",
+    "believe",
 ]
 
 
 def get_random_word():
-    return random.choice(WORD_LIST)
+    try:
+        while True:
+            word = requests.get(
+                "https://random-word-api.herokuapp.com/word", timeout=3
+            ).json()[0]
+            if word.isalpha() and 4 <= len(word) <= 10:
+                return word
+    except Exception:
+        return 'python'
+        # return random.choice(WORD_LIST)
 
 
 def get_word_from_user():
     while True:
-        word = input("Enter your secret word for Hangman (letters only): ").lower()
+        word = input(
+                "Enter your secret word for Hangman (letters only): "
+                ).lower()
         if word.isalpha():
             print("\n" * 50)
             return word

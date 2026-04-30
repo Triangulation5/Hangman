@@ -3,9 +3,9 @@ import json
 import os
 import sys
 
-from ascii_art import CELEBRATION_ARTS, HANGMAN_PICS
+from .ascii_art import CELEBRATION_ARTS, HANGMAN_PICS
 from colorama import Fore, Style
-from word_list import get_random_word, get_word_from_user
+from .word_list import get_random_word, get_word_from_user
 
 BANNER = f"""
 {Fore.MAGENTA}{Style.BRIGHT}
@@ -65,6 +65,13 @@ PROFILE_EXT = ".json"
 
 
 def list_profiles():
+    """
+    list_profiles
+    ---
+
+    Lists the profiles that are in Profile/ directory.
+    Uses os.listdir to list profiles found.
+    """
     if not os.path.exists(PROFILE_DIR):
         os.makedirs(PROFILE_DIR)
     return [
@@ -75,20 +82,45 @@ def list_profiles():
 
 
 def profile_path(name):
+    """
+    profile_path(name)
+    ---
+
+    Finds the profile path.
+    """
     return os.path.join(PROFILE_DIR, name + PROFILE_EXT)
 
 
 def save_profile(profile):
+    """
+    save_profile(profile)
+    ---
+
+    Saves the profile in json.
+    """
     with open(profile_path(profile["name"]), "w") as f:
         json.dump(profile, f)
 
 
 def load_profile(name):
+    """
+    load_profile(name)
+    ---
+
+    Loads the profile using json.load.
+    """
     with open(profile_path(name), "r") as f:
         return json.load(f)
 
 
 def create_profile():
+    """
+    create_profile
+    ---
+
+    Creates the profile by prompting the user for the name and password.
+    Asks for password twice.
+    """
     while True:
         name = input("New profile name: ").strip()
         if not name or any(c in name for c in '/\\:*?"<>|'):
@@ -109,6 +141,12 @@ def create_profile():
 
 
 def delete_profile():
+    """
+    delete_profile
+    ---
+
+    Checks the profile list for any profiles. If any at all asks you which profile that you want to delete.
+    """
     profiles = list_profiles()
     if not profiles:
         print("No profiles to delete.")
@@ -136,6 +174,12 @@ def delete_profile():
 
 
 def authenticate_profile():
+    """
+    authenticate_profile
+    ---
+
+    Checks profile list for profiles. If there are none prompts leads user to create_profile().
+    """
     profiles = list_profiles()
     if not profiles:
         print("No profiles. Create one.")
@@ -166,6 +210,17 @@ def authenticate_profile():
 
 
 def profile_menu(current_profile):
+    """
+    profile_menu(current_profile)
+    ---
+
+    Prints out profile menu. With list of options:
+
+    * Change profile
+    * New profile
+    * Delete profile
+    * Exit menu
+    """
     while True:
         print(f"\nPROFILE MENU (Current: {current_profile['name']})")
         print("1. Change profile")
@@ -187,6 +242,12 @@ def profile_menu(current_profile):
 
 
 def display_board(hangman_pics, missed_letters, correct_letters, secret_word):
+    """
+    display_board(hangman_pics, missed_letters, correct_letters, secret_word)
+    ---
+
+    Displays the hangman board.
+    """
     print(hangman_pics[len(missed_letters)])
     print()
     print("Missed letters:", " ".join(sorted(missed_letters)))
@@ -201,6 +262,18 @@ def get_guess(
     allow_inventory=False,
     inventory=None,
 ):
+    """
+    get_guess(
+        already_guessed,
+        excluded_letters=None,
+        allow_hint=False,
+        allow_inventory=False,
+        inventory=None,
+    )
+    ---
+
+    Asks user for their guess. Also allows them the options of hints and using their inventory.
+    """
     if excluded_letters is None:
         excluded_letters = set()
     while True:
@@ -228,6 +301,13 @@ def get_guess(
 
 
 def play_again():
+    """
+    play_again
+
+    ---
+
+    Prompts user to play again.
+    """
     return input("Play again? (y/n): ").lower().startswith("y")
 
 
@@ -243,6 +323,7 @@ def play_slot_machine(balance):
         stderr=subprocess.STDOUT,
         text=True,
     )
+    assert process.stdout is not None
     output_lines = []
     while True:
         line = process.stdout.readline()
@@ -589,12 +670,3 @@ Controls:
 Enjoy the game!
 """
     )
-
-
-if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) > 1 and sys.argv[1] in ("--help", "-h"):
-        print_help()
-        sys.exit(0)
-    main_menu()

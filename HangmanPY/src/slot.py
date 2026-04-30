@@ -48,7 +48,8 @@ def deposit(current_balance: int) -> int:
     while True:
         amount = (
             input(
-                f"How many jeffcoins would you like to deposit? (max {current_balance}): "
+                "How many jeffcoins would you like to deposit?"
+                f"(max {current_balance}): "
             )
             .strip()
             .lower()
@@ -63,7 +64,9 @@ def deposit(current_balance: int) -> int:
             if 0 < amount <= current_balance:
                 return amount
         print(
-            f"Please enter a number between 1 and {current_balance}, or type 'exit' or 'q' to cancel."
+            "Please enter a number between 1 and "
+            f"{current_balance}, "
+            'or type "exit" or "q" to cancel.'
         )
 
 
@@ -113,12 +116,14 @@ def spin(balance: int) -> int:
     total_bet = bet
     if total_bet > balance:
         print(
-            f"You do not have enough to bet that amount. Your current balance is {balance} jeffcoins."
+            "You do not have enough to bet that amount. "
+            f"Your current balance is {balance} jeffcoins"
         )
         return 0
 
     print(
-        f"\nYou are betting {bet} jeffcoin{'s' if bet > 1 else ''}. Paylines: {len(get_active_paylines(bet))}"
+        f"\nYou are betting {bet} jeffcoins{'s' if bet > 1 else ''}. "
+        f"Paylines: {len(get_active_paylines(bet))}"
     )
     spin_result = get_slot_machine_spin(ROWS, COLS, symbol_frequencies)
     print_slot_machine(spin_result)
@@ -143,7 +148,8 @@ def spin_with_bet(balance: int, bet: int) -> int:
         print(f"Not enough jeffcoins. Balance: {balance}")
         return 0
     print(
-        f"\nYou are betting {bet} jeffcoin{'s' if bet > 1 else ''}. Paylines: {len(get_active_paylines(bet))}"
+        f"\nYou are betting {bet} jeffcoins{'s' if bet > 1 else ''}"
+        f"\nPaylines: {len(get_active_paylines(bet))}"
     )
     spin_result = get_slot_machine_spin(ROWS, COLS, symbol_frequencies)
     print_slot_machine(spin_result)
@@ -213,7 +219,8 @@ def main(balance=0) -> int:
             balance -= deposit_amount
             while session_balance > 0:
                 print(
-                    f"Current session balance is {session_balance} jeffcoin{'s' if session_balance != 1 else ''}"
+                    f"Currecnt session balace is {session_balance} "
+                    f"jeffcion{'s' if session_balance != 1 else ''}"
                 )
                 answer = input("Press enter to play (q to quit to menu). ")
                 if answer.lower() in ("q", "exit"):
@@ -227,7 +234,8 @@ def main(balance=0) -> int:
                 if session_balance <= 0:
                     print("You are out of jeffcoins for this session!")
             print(
-                f"You left the slot machine with {balance} jeffcoin{'s' if balance != 1 else ''}"
+                f"You left the slot machine with {balance} "
+                f"jeffcoin{'s' if balance != 1 else ''}"
             )
         else:
             print("Invalid option. Please choose 1, 2, 'exit', or 'q'.")
