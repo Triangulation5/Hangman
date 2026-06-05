@@ -105,7 +105,7 @@ def save_profile(profile):
         json.dump(profile, f)
 
 
-def load_profile(name):
+def load_profile(name: str) -> dict:
     """
     load_profile(name)
     ---
@@ -132,8 +132,8 @@ def create_profile():
         if name in list_profiles():
             print(Fore.RED + "Profile already exists." + Style.RESET_ALL)
             continue
-        password = getpass.getpass("Password: ")
-        confirm = getpass.getpass("Confirm: ")
+        password = getpass("Password: ")
+        confirm = getpass("Confirm: ")
         if password != confirm:
             print(Fore.RED + "Passwords do not match." + Style.RESET_ALL)
             continue
@@ -143,7 +143,7 @@ def create_profile():
         return profile
 
 
-def delete_profile():
+def delete_profile() -> bool | None:
     """
     delete_profile
     ---
@@ -178,11 +178,12 @@ def delete_profile():
             return False
 
 
-def authenticate_profile():
+def authenticate_profile() -> dict:
     """
     authenticate_profile
     ---
 
+    Returns a dictionary.
     Checks profile list for profiles.
     If there are none prompts leads user to create_profile().
     """
@@ -202,14 +203,16 @@ def authenticate_profile():
             name = profiles[int(choice) - 1]
         elif choice in ("create", "new"):
             return create_profile()
-        elif choice in ("delete"):
-            return delete_profile()
+        elif choice == "delete":
+            delete_profile()
+            profiles = list_profiles()
+            continue
         elif choice in profiles:
             name = choice
         else:
             print(f"{Fore.RED}Invalid.{Style.RESET_ALL}")
             continue
-        password = getpass.getpass("Password: ")
+        password = getpass("Password: ")
         profile = load_profile(name)
         if password == profile["password"]:
             print(f"{Fore.GREEN}Welcome, {name}!{Style.RESET_ALL}")
@@ -468,6 +471,9 @@ def play_hangman(balance=0, inventory=None):
         print("Select difficulty: easy, medium, hard, super hard, mental")
         difficulty = input("Enter difficulty: ")
 
+        mode = input("Enter '1' to input your own word, '2' for a random word: ")
+        secret_word = get_word_from_user() if mode == "1" else get_random_word()
+
         if difficulty == "auto":
             if isinstance(secret_word, str):
                 word_length = len(secret_word)
@@ -494,9 +500,8 @@ def play_hangman(balance=0, inventory=None):
                 + Style.RESET_ALL
             )
             continue
+
         settings = difficulties[difficulty]
-        mode = input("Enter '1' to input your own word, '2' for a random word: ")
-        secret_word = get_word_from_user() if mode == "1" else get_random_word()
         missed_letters = set()
         correct_letters = set()
         game_is_done = False
