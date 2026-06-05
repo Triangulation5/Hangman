@@ -1,7 +1,7 @@
-import getpass
 import json
 import os
 import sys
+from getpass import getpass
 
 from colorama import Fore, Style, init
 
@@ -139,7 +139,7 @@ def create_profile():
             continue
         profile = {"name": name, "password": password, "balance": 0, "inventory": {}}
         save_profile(profile)
-        print(f"\n{Fore.GREEN}Profile \"{name}\" created!{Style.RESET_ALL}")
+        print(f'\n{Fore.GREEN}Profile "{name}" created!{Style.RESET_ALL}')
         return profile
 
 
@@ -167,11 +167,11 @@ def delete_profile():
             print(Fore.RED + "Invalid." + Style.RESET_ALL)
             continue
         confirm = input(
-                f'{Fore.RED}Type "{name}" to confirm deletion: {Style.RESET_ALL}'
-                ).strip()
+            f'{Fore.RED}Type "{name}" to confirm deletion: {Style.RESET_ALL}'
+        ).strip()
         if confirm == name:
             os.remove(profile_path(name))
-            print(f'{Fore.GREEN}Profile \"{name}\" deleted.{Style.RESET_ALL}')
+            print(f'{Fore.GREEN}Profile "{name}" deleted.{Style.RESET_ALL}')
             return True
         else:
             print(Fore.YELLOW + "Deletion cancelled." + Style.RESET_ALL)
@@ -195,8 +195,8 @@ def authenticate_profile():
         for idx, p in enumerate(profiles, 1):
             print(f"{idx}. {p}")
         choice = input(
-            "Select profile, delete profile using \"delete\", "
-            "or type \"create\", \"new\" to create new one #: "
+            'Select profile, delete profile using "delete", '
+            'or type "create", "new" to create new one #: '
         ).strip()
         if choice.isdigit() and 1 <= int(choice) <= len(profiles):
             name = profiles[int(choice) - 1]
@@ -247,7 +247,7 @@ def profile_menu(current_profile):
         elif choice in ("4", "exit", "q"):
             return current_profile
         else:
-            print("Invalid.")
+            print(Fore.RED + "Invalid." + Style.RESET_ALL)
 
 
 def display_board(hangman_pics, missed_letters, correct_letters, secret_word):
@@ -281,7 +281,8 @@ def get_guess(
     )
     ---
 
-    Asks user for their guess. Also allows them the options of hints and using their inventory.
+    Asks user for their guess.
+    Also allows them the options of hints and using their inventory.
     """
     if excluded_letters is None:
         excluded_letters = set()
@@ -368,9 +369,9 @@ def shop(balance, inventory):
                 else:
                     print("Not enough.")
             else:
-                print("Invalid.")
+                print(Fore.RED + "Invalid." + Style.RESET_ALL)
         else:
-            print("Invalid.")
+            print(Fore.RED + "Invalid." + Style.RESET_ALL)
     return balance, inventory
 
 
@@ -403,9 +404,9 @@ def show_inventory(inventory):
                 else:
                     print(f"No {item}s left.")
             else:
-                print("Invalid.")
+                print(Fore.RED + "Invalid." + Style.RESET_ALL)
         else:
-            print("Invalid.")
+            print(Fore.RED + "Invalid." + Style.RESET_ALL)
 
 
 def main_menu():
@@ -448,7 +449,7 @@ def main_menu():
             balance = profile.get("balance", 0)
             inventory = profile.get("inventory", {})
         else:
-            print("Invalid.")
+            print(Fore.RED + "Invalid." + Style.RESET_ALL)
 
 
 def play_hangman(balance=0, inventory=None):
@@ -479,14 +480,18 @@ def play_hangman(balance=0, inventory=None):
                 else:
                     difficulty = "super hard"
             else:
-                print("Error: secret_word is not a string.")
+                print(
+                    Fore.RED + "Error: secret_word is not a string." + Style.RESET_ALL
+                )
                 difficulty = "medium"
         else:
             difficulty = difficulty.strip().lower()
 
         if difficulty not in difficulties:
             print(
-                "Invalid difficulty. Please choose from easy, medium, hard, super hard, mental."
+                Fore.RED
+                + "Invalid difficulty. Please choose from easy, medium, hard, super hard, mental."
+                + Style.RESET_ALL
             )
             continue
         settings = difficulties[difficulty]

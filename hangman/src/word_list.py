@@ -167,15 +167,12 @@ def get_random_word():
             if word.isalpha() and 4 <= len(word) <= 10:
                 return word
     except Exception:
-        return 'python'
-        # return random.choice(WORD_LIST)
+        return random.choice(WORD_LIST)
 
 
 def get_word_from_user():
     while True:
-        word = input(
-                "Enter your secret word for Hangman (letters only): "
-                ).lower()
+        word = input("Enter your secret word for Hangman (letters only): ").lower()
         if word.isalpha():
             print("\n" * 50)
             return word

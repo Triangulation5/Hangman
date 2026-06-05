@@ -2,6 +2,8 @@ import random
 import sys
 from typing import Dict, List, Tuple
 
+from colorama import Fore, Style
+
 MAX_LINES = 5
 MAX_BET = 3
 MIN_BET = 1
@@ -9,7 +11,12 @@ ROWS = 4
 COLS = 5
 BONUS_CHANCE = 0.1
 
-SYMBOLS = ["R7", "B7", "Cherry", "Bar"]
+SYMBOLS = [
+    ("R7", Fore.RED),
+    ("B7", Fore.BLUE),
+    ("Cherry", Fore.MAGENTA),
+    ("Bar", Fore.YELLOW),
+]
 
 symbol_frequencies: Dict[str, int] = {"R7": 1, "B7": 2, "Cherry": 4, "Bar": 6}
 
@@ -219,8 +226,8 @@ def main(balance=0) -> int:
             balance -= deposit_amount
             while session_balance > 0:
                 print(
-                    f"Currecnt session balace is {session_balance} "
-                    f"jeffcion{'s' if session_balance != 1 else ''}"
+                    f"Current session balace is {session_balance} "
+                    f"jeffcoins{'s' if session_balance != 1 else ''}"
                 )
                 answer = input("Press enter to play (q to quit to menu). ")
                 if answer.lower() in ("q", "exit"):
@@ -238,7 +245,11 @@ def main(balance=0) -> int:
                 f"jeffcoin{'s' if balance != 1 else ''}"
             )
         else:
-            print("Invalid option. Please choose 1, 2, 'exit', or 'q'.")
+            print(
+                Fore.RED
+                + "Invalid option. Please choose 1, 2, 'exit', or 'q'."
+                + Style.RESET_ALL
+            )
     print(balance)
     return balance
 
