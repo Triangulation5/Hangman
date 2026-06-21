@@ -7,7 +7,12 @@
 
 ## Quick checkboxes
 
-- [ ] Update the slot machine implementation so that it is object oriented and
-  nicely split up
-- [ ] Find a place to get nice ascii art that I can use after a win
-- [ ] Do the same for the main hangman game file
+- [ ] Update the [slot][1] machine implementation so that it is object oriented and nicely split up
+- [ ] Find a place to get nice [ascii art][2]
+- [ ] Do the same for the main [hangman][3] game file
+
+---
+<!-- Hidden footnotes: -->
+[1]: hangman/src/slot.py
+[2]: hangman/src/ascii_art.py
+[3]: hangman/src/hangman.py
